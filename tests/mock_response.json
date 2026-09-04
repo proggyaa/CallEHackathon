@@ -1,0 +1,24 @@
+{
+  "status": "completed",
+  "task_completed": true,
+  "structured_result": {
+    "is_available": true,
+    "available_from_date": "Sept 1st",
+    "bed_bath_count": "2 Bed / 1 Bath",
+    "pet_policy": "Cats allowed",
+    "furnishing_status": "Unfurnished",
+    "parking_available": "1 slot included",
+    "asking_rent": "$2,600",
+    "negotiated_rent": "$2,400",
+    "deposit_amount": "$2,400",
+    "tour_confirmed": true,
+    "agreed_tour_iso": "2026-08-30T14:00:00Z",
+    "negotiation_outcome": {
+      "tier_reached": "tier_2_target",
+      "landlord_accepted_counter": true,
+      "concessions_granted": "Waived application fee"
+    },
+    "landlord_notes": "Agreed to $2,400 rent and $2,400 deposit.",
+    "recommended_action": "book_tour"
+  }
+}

@@ -4,7 +4,7 @@ import json
 import os
 from prescreen_runner import prescreen_landlord
 
-def process_record(row: dict, slots: list[str], index: int) -> dict | None:
+def process_record(row: dict, slots: list[str] | None, index: int) -> dict | None:
     """Processes a single CSV row entry."""
     phone = row.get("phone")
     address = row.get("address", "Rental Unit")

@@ -1,6 +1,5 @@
 # app/gemini_dashboard.py
 import sys
-import re
 from pathlib import Path
 import streamlit as st
 
@@ -13,7 +12,7 @@ def main():
     st.set_page_config(layout="wide", page_title="Flat Hunting Control Center")
     styling.render_css()
     
-    # 1. Capture User Input & Events
+    # 1. Capture User Input & Events (Runs once)
     must_haves, negotiables, save_clicked, initiate_clicked = filters.render_renter_choice_input()
 
     if save_clicked:
@@ -31,8 +30,6 @@ def main():
             try:
                 for log_line in runner.trigger_batch_prescreen_stream():
                     last_logs.append(log_line)
-                    # Look for stdout lines from prescreen_runner matching the target
-                    # Example stdout: [*] Initiating CALL-E agent for target: +919748081672 ( Koramangala)...
                     if "Initiating CALL-E agent for target:" in log_line:
                         status_box.markdown(
                             f"""
@@ -61,7 +58,7 @@ def main():
                 if last_logs:
                     st.code("\n".join(last_logs[-10:]))
 
-    # 3. Render Listing Grid
+    # 3. Render Listing Grid (Pass live must_haves selection)
     df_raw = data_handler.load_data()
     if df_raw.empty:
         states.render_empty_state(
@@ -70,7 +67,7 @@ def main():
         )
         st.stop()
 
-    grids.render_property_grid(df_raw)
+    grids.render_property_grid(df_raw, must_haves=must_haves)
 
 if __name__ == "__main__":
     main()

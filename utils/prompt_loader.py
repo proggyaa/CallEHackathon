@@ -12,6 +12,8 @@ def build_prescreen_prompt(
     max_deposit: str,
     slot_1: str,
     slot_2: str,
+    must_haves: str = "None strictly required",
+    negotiables: str = "None specified"
 ) -> str:
     """Loads and formats the external prompt template with runtime variables."""
     if not PROMPT_TEMPLATE_PATH.exists():
@@ -27,4 +29,6 @@ def build_prescreen_prompt(
         max_deposit=max_deposit,
         slot_1=slot_1,
         slot_2=slot_2,
+        must_haves=must_haves,
+        negotiables=negotiables
     )

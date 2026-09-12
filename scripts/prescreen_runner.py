@@ -17,6 +17,13 @@ load_dotenv()
 
 MOCK_CALL = False
 
+def load_renter_prefs() -> dict:
+    """Loads saved preferences from the frontend Streamlit dashboard."""
+    prefs_path = Path(__file__).parent.parent / "config" / "renter_prefs.json"
+    if prefs_path.exists():
+        with open(prefs_path, "r") as f:
+            return json.load(f)
+    return {"must_haves": [], "negotiables": []}
 
 def prescreen_landlord(
     phone: str,
@@ -46,6 +53,11 @@ def prescreen_landlord(
         slot_1 = open_slots[0] if len(open_slots) > 0 else "Tomorrow at 2:00 PM"
         slot_2 = open_slots[1] if len(open_slots) > 1 else "Tomorrow at 4:30 PM"
 
+    # After resolving slots...
+    prefs = load_renter_prefs()
+    must_haves_str = ", ".join(prefs.get("must_haves", [])) or "None strictly required"
+    negotiables_str = ", ".join(prefs.get("negotiables", [])) or "None specified"
+
     task_prompt = build_prescreen_prompt(
         phone=phone,
         address=address,
@@ -53,8 +65,10 @@ def prescreen_landlord(
         max_deposit=max_deposit,
         slot_1=slot_1,
         slot_2=slot_2,
+        must_haves=must_haves_str,      # New parameter
+        negotiables=negotiables_str     # New parameter
     )
-
+    
     if MOCK_CALL:
         print(
             "\n--- [MOCK MODE ENABLED] Loading mock response from tests/mock_response.json ---"
@@ -88,6 +102,7 @@ def prescreen_landlord(
 
 
 if __name__ == "__main__":
+    # Sample call to run the prescreen_landlord function directly for testing
     prescreen_landlord(
         phone="+14155552671",
         address="124 Baker St, Apt 4B",

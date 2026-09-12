@@ -1,25 +1,39 @@
+import re
 import pandas as pd
-from app.core.data_handler import parse_rent_int
 
-def evaluate_listing(row: pd.Series, prefs: dict, budget: int):
-    rent = parse_rent_int(row.get("negotiated_rent") or row.get("asking_rent"))
-    if budget > 0 and rent > budget: return None
+def evaluate_listing(row, prefs=None, budget=0):
+    prefs = prefs or {}
     
-    score = 100
-    for feature, pref_type in prefs.items():
-        if pref_type == "No Preference": continue
-        has_feature = "yes" in str(row.get(feature, "")).lower()
-        if pref_type == "Must have" and not has_feature: return None
-        elif pref_type == "Good to have" and has_feature: score += 10
-        elif pref_type == "Absolutely should not have" and has_feature: return None
-    return score
+    # Safely extract and clean rent values regardless of type (string, list, int)
+    rent_raw = row.get("rent", 0)
+    if isinstance(rent_raw, list):
+        rent_raw = rent_raw[0] if len(rent_raw) > 0 else 0
+        
+    if isinstance(rent_raw, str):
+        cleaned = re.sub(r'[^\d]', '', rent_raw)
+        rent = int(cleaned) if cleaned else 0
+    elif isinstance(rent_raw, (int, float)):
+        rent = int(rent_raw)
+    else:
+        rent = 0
 
-def process_listings(df_raw: pd.DataFrame, prefs: dict, budget: int) -> pd.DataFrame:
-    scored_records = []
-    for _, row in df_raw.iterrows():
-        score = evaluate_listing(row, prefs, budget)
-        if score is not None:
-            row_dict = row.to_dict()
-            row_dict["match_score"] = score
-            scored_records.append(row_dict)
-    return pd.DataFrame(scored_records).sort_values(by="match_score", ascending=False)
+    # Ensure budget is numeric if passed incorrectly
+    if not isinstance(budget, (int, float)):
+        budget = 0
+
+    if budget > 0 and rent > budget:
+        return None
+
+    return row
+
+def process_listings(df, prefs=None, budget=0):
+    if df.empty:
+        return df
+
+    processed = []
+    for idx, row in df.iterrows():
+        evaluated = evaluate_listing(row, prefs, budget)
+        if evaluated is not None:
+            processed.append(evaluated)
+            
+    return pd.DataFrame(processed) if processed else pd.DataFrame(columns=df.columns)

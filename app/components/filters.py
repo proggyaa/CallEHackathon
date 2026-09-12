@@ -1,19 +1,54 @@
 import streamlit as st
-from app.core.data_handler import PREF_OPTIONS
 
-def render_filters() -> tuple[dict, int]:
-    st.markdown("<div style='font-size: 20px; font-weight: 500; letter-spacing: -0.5px; margin-bottom: 12px;'>Parameters</div>", unsafe_allow_html=True)
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        pet = st.selectbox("Pet Policy", PREF_OPTIONS, index=0)
-        park = st.selectbox("Parking", PREF_OPTIONS, index=0)
-    with c2:
-        furnish = st.selectbox("Furnished", PREF_OPTIONS, index=0)
-        laundry = st.selectbox("Laundry", PREF_OPTIONS, index=0)
-    with c3:
-        dish = st.selectbox("Dishwasher", PREF_OPTIONS, index=0)
-    with c4:
-        budget = st.number_input("Max Rent ($)", value=3000, step=100)
+def render_renter_choice_input():
+    st.markdown("""
+        <style>
+        .renter-choice-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 28px;
+            padding: 32px;
+            max-width: 500px;
+            margin: 0 auto 32px auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .renter-choice-title {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+            color: #000000;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    prefs = {"pet_policy": pet, "parking_available": park, "furnishing_status": furnish, "laundry": laundry, "dishwasher": dish}
-    return prefs, budget
+    options = [
+        "Parking Available",
+        "Pet Policy Allowed",
+        "Furnished",
+        "In-Unit Laundry",
+        "Dishwasher",
+        "Rent Concessions",
+        "Immediate Availability"
+    ]
+
+    with st.container():
+        st.markdown('<div class="renter-choice-card"><div class="renter-choice-title">Renter Choice Input</div>', unsafe_allow_html=True)
+        
+        must_haves = st.multiselect(
+            "Must Haves",
+            options=options,
+            placeholder="Select Must Haves...",
+            key="must_haves_input"
+        )
+
+        negotiables = st.multiselect(
+            "Negotiables",
+            options=options,
+            placeholder="Select Negotiables...",
+            key="negotiables_input"
+        )
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    return must_haves, negotiables

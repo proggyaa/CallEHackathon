@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from calle import CalleClient
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ from utils.prompt_loader import build_prescreen_prompt
 
 load_dotenv()
 
-MOCK_CALL = True
+MOCK_CALL = False
 
 
 def prescreen_landlord(
@@ -22,6 +23,8 @@ def prescreen_landlord(
     address: str,
     max_budget: str = "$2,400",
     max_deposit: str = "$2,400",
+    user_slots: list[str] | None = None,
+    offset_minutes: int = 0,
 ):
     api_key = os.environ.get("CALLE_API_KEY")
 
@@ -34,10 +37,14 @@ def prescreen_landlord(
             sys.exit(1)
         assert api_key is not None
 
-    print("[*] Fetching open slots from Google Calendar...")
-    open_slots = get_available_slots(hours_ahead=48)
-    slot_1 = open_slots[0] if len(open_slots) > 0 else "Tomorrow at 2:00 PM"
-    slot_2 = open_slots[1] if len(open_slots) > 1 else "Tomorrow at 4:30 PM"
+    # Resolve slots: use user input if provided, otherwise fetch from calendar
+    if user_slots and len(user_slots) >= 2:
+        slot_1, slot_2 = user_slots[0], user_slots[1]
+    else:
+        print("[*] Fetching open slots from Google Calendar...")
+        open_slots = get_available_slots(hours_ahead=48)
+        slot_1 = open_slots[0] if len(open_slots) > 0 else "Tomorrow at 2:00 PM"
+        slot_2 = open_slots[1] if len(open_slots) > 1 else "Tomorrow at 4:30 PM"
 
     task_prompt = build_prescreen_prompt(
         phone=phone,
@@ -53,6 +60,9 @@ def prescreen_landlord(
             "\n--- [MOCK MODE ENABLED] Loading mock response from tests/mock_response.json ---"
         )
         call = load_mock_call_response()
+        if call.get("structured_result"):
+            staggered_time = datetime.now(timezone.utc) + timedelta(days=1, minutes=offset_minutes)
+            call["structured_result"]["agreed_tour_iso"] = staggered_time.isoformat()
     else:
         client = CalleClient(api_key=api_key or "")
         print(f"[*] Initiating CALL-E agent for target: {phone} ({address})...")

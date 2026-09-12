@@ -28,25 +28,55 @@ def get_calendar_service():
     return build("calendar", "v3", credentials=creds)
 
 
-def get_available_slots(hours_ahead=48, max_slots=2):
-    """Queries freebusy endpoint and returns open viewing windows as formatted strings."""
-    service = get_calendar_service()
-    now = datetime.now(timezone.utc)
-    time_max = now + timedelta(hours=hours_ahead)
+from datetime import datetime, timedelta, timezone
 
+def get_available_slots(hours_ahead=48, slot_duration_minutes=30):
+    service = get_calendar_service()
+    
+    # Query window starting from now
+    now = datetime.now(timezone.utc)
+    end_time = now + timedelta(hours=hours_ahead)
+    
+    # Fetch existing busy blocks
     body = {
         "timeMin": now.isoformat(),
-        "timeMax": time_max.isoformat(),
-        "items": [{"id": "primary"}],
+        "timeMax": end_time.isoformat(),
+        "timeZone": "UTC",
+        "items": [{"id": "primary"}]
     }
+    
+    freebusy_result = service.freebusy().query(body=body).execute()
+    busy_intervals = freebusy_result["calendars"]["primary"]["busy"]
+    
+    # Convert ISO strings to datetime objects
+    busy_list = []
+    for interval in busy_intervals:
+        start = datetime.fromisoformat(interval["start"].replace("Z", "+00:00"))
+        end = datetime.fromisoformat(interval["end"].replace("Z", "+00:00"))
+        busy_list.append((start, end))
 
-    events_result = service.freebusy().query(body=body).execute()
-    busy_list = events_result["calendars"]["primary"]["busy"]
+    # Candidate slot search (checking working hours 9 AM - 6 PM local)
+    available_slots = []
+    candidate = now.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1)
 
-    # Simple gap detection logic for demo: return default windows if unblocked
-    # Example output: ["Tomorrow at 2:00 PM", "Tomorrow at 4:30 PM"]
-    return ["Tomorrow at 2:00 PM", "Tomorrow at 4:30 PM"]
-
+    while candidate < end_time and len(available_slots) < 2:
+        candidate_end = candidate + timedelta(minutes=slot_duration_minutes)
+        
+        # Check for overlaps with existing busy blocks
+        is_busy = False
+        for busy_start, busy_end in busy_list:
+            if max(candidate, busy_start) < min(candidate_end, busy_end):
+                is_busy = True
+                break
+                
+        # Only accept slots during normal hours (9:00 - 18:00)
+        if not is_busy and 9 <= candidate.hour < 18:
+            formatted_slot = candidate.strftime("%A at %I:%M %p")
+            available_slots.append(formatted_slot)
+            
+        candidate += timedelta(minutes=30)
+        
+    return available_slots
 
 def create_tour_event(
     summary: str,

@@ -1,6 +1,6 @@
-# CallEHackathon
+# NemoTheFinder
 
-CallEHackathon is a rental-listing prescreening workflow. It loads listings, lets a renter define preferences in a Streamlit dashboard, uses CALL-E to prescreen landlords, stores structured results in SQLite, and displays matching properties and scheduled tours.
+NemoTheFinder is a rental-listing prescreening workflow. It loads listings, lets a renter define preferences in a Streamlit dashboard, uses CALL-E to prescreen landlords, stores structured results in SQLite, and displays matching properties and scheduled tours.
 
 ## Prerequisites
 
@@ -17,14 +17,14 @@ The project has been tested with a local Python virtual environment on Windows.
 
 ```powershell
 git clone <repository-url>
-cd CallEHackathon
+cd NemoTheFinder
 ```
 
 On macOS or Linux:
 
 ```bash
 git clone <repository-url>
-cd CallEHackathon
+cd NemoTheFinder
 ```
 
 ## 2. Create and Activate a Virtual Environment
@@ -199,7 +199,7 @@ python -m src.domain.batch_prescreen --help
 ## Project Layout
 
 ```text
-CallEHackathon/
+NemoTheFinder/
 ├── data/
 │   ├── raw/                  # CSV inputs and generated batch results
 │   └── user/                 # Renter preferences

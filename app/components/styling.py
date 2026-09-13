@@ -1,23 +1,80 @@
+# app/components/styling.py
 import streamlit as st
 
 def render_css():
     st.markdown("""
         <style>
-        .stApp { background-color: #F8F9FA; font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; color: #000000; }
-        div[data-baseweb="select"] > div, div[data-baseweb="input"] > div { background-color: #FFFFFF !important; border-radius: 30px !important; border: 1px solid #E0E0E0 !important; box-shadow: none !important; }
-        label[data-testid="stWidgetLabel"] { font-size: 12px !important; font-weight: 500 !important; color: #000000 !important; margin-left: 8px !important; }
-        .metric-container { border-radius: 24px; padding: 24px; color: #000000; min-height: 140px; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
-        .metric-icon { position: absolute; top: 20px; left: 20px; background: #FFFFFF; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
-        .bg-mustard { background-color: #D2BE7B; }
-        .bg-slate { background-color: #8DABBC; }
-        .bg-orange { background-color: #F26531; }
-        .metric-value { font-size: 36px; font-weight: 500; line-height: 1.1; margin-bottom: 4px; letter-spacing: -1px; }
-        .metric-label { font-size: 13px; font-weight: 400; opacity: 0.9; }
-        .property-card { background-color: #F2F3F5; border-radius: 28px; padding: 28px; margin-bottom: 24px; min-height: 260px; display: flex; flex-direction: column; justify-content: space-between; }
-        .prop-huge-val { font-size: 42px; font-weight: 500; letter-spacing: -1.5px; line-height: 1; margin: 16px 0; }
-        .prop-title { font-size: 18px; font-weight: 500; }
-        .prop-sub { font-size: 13px; color: #555; }
-        div.stButton > button { background-color: #FFFFFF !important; color: #000000 !important; border: 1px solid #E0E0E0 !important; border-radius: 30px !important; font-size: 13px !important; font-weight: 500 !important; height: 36px !important; width: fit-content !important; padding: 0 20px !important; }
-        div.stButton > button:hover { background-color: #EFEFEF !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        /* Outer Canvas Background with Warm Paper Palette & Grain texture */
+        .stApp, 
+        [data-testid="stAppViewContainer"], 
+        header[data-testid="stHeader"], 
+        .main {
+            background-color: #F5EDE4 !important;
+            font-family: 'Space Grotesk', sans-serif !important;
+            color: #3A3226 !important;
+        }
+
+        /* Typography */
+        h1, h2, h3, .header-title, .prop-title { 
+            font-family: 'Fraunces', serif !important; 
+            font-weight: 700 !important;
+            letter-spacing: -0.5px !important;
+            color: #3A3226 !important;
+        }
+
+        /* Tactile Button Styling - Slight scale down on click */
+        div.stButton > button { 
+            font-family: 'Space Grotesk', sans-serif !important;
+            background-color: #FFFDF9 !important; 
+            color: #3A3226 !important; 
+            border: 2px solid #3A3226 !important; 
+            border-radius: 14px 18px 12px 16px !important; 
+            font-size: 14px !important; 
+            font-weight: 700 !important; 
+            height: 44px !important; 
+            padding: 0 24px !important; 
+            box-shadow: 2px 3px 0px #3A3226 !important;
+            transition: all 0.15s ease-in-out !important;
+        }
+        
+        div.stButton > button:hover { 
+            background-color: #F5EDE4 !important; 
+            transform: translateY(-1px) !important;
+            box-shadow: 3px 4px 0px #3A3226 !important;
+        }
+
+        div.stButton > button:active { 
+            transform: translateY(2px) !important;
+            box-shadow: 0px 1px 0px #3A3226 !important;
+        }
+
+        /* Initiate Calls Primary Button */
+        div.stButton > button[kind="primary"] {
+            background-color: #E8604C !important;
+            color: #FFFFFF !important;
+            border: 2px solid #3A3226 !important;
+        }
+
+        div.stButton > button[kind="primary"]:hover {
+            background-color: #D4503C !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Custom Input Boxes Styling */
+        div[data-baseweb="select"] > div { 
+            background-color: #FFFDF9 !important; 
+            border-radius: 14px 12px 16px 14px !important; 
+            border: 2px solid #3A3226 !important; 
+            box-shadow: 2px 2px 0px rgba(58, 50, 38, 0.15) !important; 
+        }
+        
+        label[data-testid="stWidgetLabel"] { 
+            font-family: 'Fraunces', serif !important;
+            font-size: 16px !important; 
+            font-weight: 700 !important; 
+            color: #3A3226 !important; 
+        }
         </style>
     """, unsafe_allow_html=True)

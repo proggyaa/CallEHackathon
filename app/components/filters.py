@@ -16,33 +16,78 @@ def save_prefs(must_haves: list, negotiables: list) -> None:
     with open(PREFS_FILE, "w") as f:
         json.dump({"must_haves": must_haves, "negotiables": negotiables}, f)
 
+def render_header_banner():
+    """Renders the banner logo outside at the top, smaller, centered, and pushed upwards."""
+    st.markdown("""
+        <style>
+        /* Pull the top image container up */
+        div[class*="st-key-top_banner_container"] {
+            margin-top: -100px !important;
+            margin-bottom: -15px !important;
+            padding-top: 0px !important;
+        }
+
+        div[data-testid="stImage"] {
+            margin-bottom: 0px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    with st.container(key="top_banner_container"):
+        col_l, col_img, col_r = st.columns([1.5, 3, 1.5])
+        with col_img:
+            st.image("assets/header_logo.png", use_container_width=True)
+
 def render_renter_choice_input() -> tuple[list, list, bool, bool]:
     st.markdown("""
         <style>
-        /* Must Haves Tag Styling - Red */
-        div[class*="st-key-must_haves_wrap"] div[data-baseweb="tag"] {
-            background-color: #FF4D4D !important;
-            color: #FFFFFF !important;
-            border-radius: 12px !important;
-        }
-        div[class*="st-key-must_haves_wrap"] div[data-baseweb="tag"] span {
-            color: #FFFFFF !important;
-        }
-        div[class*="st-key-must_haves_wrap"] div[data-baseweb="tag"] svg {
-            fill: #FFFFFF !important;
+        /* Elevated Main Wrapper Box with Organic Border & Soft Tinted Shadow */
+        div[class*="st-key-main_elevated_card"] {
+            background-color: #FFFDF9 !important;
+            border-radius: 28px 24px 30px 22px !important;
+            border: 2px solid #3A3226 !important;
+            padding: 32px 32px !important;
+            box-shadow: 4px 6px 0px #3A3226 !important;
+            margin-top: 0px !important;
+            margin-bottom: 30px !important;
         }
 
-        /* Negotiables Tag Styling - Green */
-        div[class*="st-key-negotiables_wrap"] div[data-baseweb="tag"] {
-            background-color: #ADFF2F !important;
-            border-radius: 12px !important;
+        /* Subheading Micro-copy */
+        .header-subtitle {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: #3A3226;
+            line-height: 1.5;
+            text-align: center;
+            margin-top: 0px;
+            margin-bottom: 24px;
         }
-        div[class*="st-key-negotiables_wrap"] div[data-baseweb="tag"] span {
-            color: #1E1E1E !important;
+
+        /* Custom Coral-Red Chip Tags for Must Haves */
+        div[class*="st-key-must_haves_wrap"] [data-baseweb="tag"] {
+            background-color: #E8604C !important;
+            border: 1.5px solid #3A3226 !important;
+            border-radius: 12px 14px 10px 16px !important;
+            transform: rotate(-0.8deg);
+        }
+        div[class*="st-key-must_haves_wrap"] [data-baseweb="tag"] * {
+            color: #FFFFFF !important;
+            fill: #FFFFFF !important;
             font-weight: 600 !important;
         }
-        div[class*="st-key-negotiables_wrap"] div[data-baseweb="tag"] svg {
-            fill: #1E1E1E !important;
+
+        /* Custom Muted Peach Chip Tags for Negotiables */
+        div[class*="st-key-negotiables_wrap"] [data-baseweb="tag"] {
+            background-color: #F7C59F !important;
+            border: 1.5px solid #3A3226 !important;
+            border-radius: 14px 10px 16px 12px !important;
+            transform: rotate(0.8deg);
+        }
+        div[class*="st-key-negotiables_wrap"] [data-baseweb="tag"] * {
+            color: #3A2412 !important;
+            fill: #3A2412 !important;
+            font-weight: 600 !important;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -62,13 +107,15 @@ def render_renter_choice_input() -> tuple[list, list, bool, bool]:
     must_have_options = [opt for opt in all_options if opt not in st.session_state["negotiables_input"]]
     negotiable_options = [opt for opt in all_options if opt not in st.session_state["must_haves_input"]]
 
-    # Render Your Exact Image Banner Centered
-    col_l, col_img, col_r = st.columns([1, 4, 1])
-    with col_img:
-        # Change filename extension to match your saved file (.png / .jpg)
-        st.image("assets/header_logo.png", use_container_width=True)
+    # Subtitle Micro-copy inside the card top
+    st.markdown("""
+        <div class="header-subtitle">
+            Let our agent call apartment listings on your behalf.<br>
+            Just tell us your requirements and relax :)
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Inputs
+    # Input Fields
     with st.container(key="must_haves_wrap"):
         must_haves = st.multiselect(
             "Must Haves",

@@ -5,8 +5,18 @@ import pandas as pd
 import streamlit as st
 from app.core import scoring
 
+def get_status_palette(color_code: str) -> tuple[str, str, str, str]:
+    """Returns (bg_color, text_color, subtext_color, badge_bg) mapped to earthy paper palette."""
+    if color_code == "#A4CE8B": # Matched
+        return "#A3C997", "#1E261B", "#384A33", "rgba(255, 255, 255, 0.55)"
+    elif color_code == "#FFBE91": # Negotiable
+        return "#F7C59F", "#3A2412", "#593B22", "rgba(255, 255, 255, 0.55)"
+    elif color_code == "#9E3B3B": # Rejected
+        return "#B85B5B", "#FFFFFF", "rgba(255, 255, 255, 0.9)", "rgba(0, 0, 0, 0.2)"
+    else: # Default/Unscreened
+        return "#E2D9D5", "#3A3226", "#544D47", "rgba(255, 255, 255, 0.6)"
+
 def get_status_label(color_code: str) -> str:
-    """Returns the text badge label based on the calculated score color."""
     if color_code == "#A4CE8B":
         return "MATCHED"
     elif color_code == "#FFBE91":
@@ -18,7 +28,6 @@ def get_status_label(color_code: str) -> str:
 def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
     active_must_haves: list = must_haves if must_haves is not None else []
     
-    # Load stored call results
     call_results_map = {}
     if os.path.exists("batch_results.json"):
         try:
@@ -34,6 +43,9 @@ def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
 
     grid_cols = st.columns(3, gap="large")
 
+    # Rotation angles for slight imperfect layout
+    rotations = [-1.0, 0.8, -0.6, 1.2, -0.7, 0.9]
+
     for idx, (_, row) in enumerate(df.iterrows()):
         col_idx = idx % 3
         l_id = str(row.get("address", f"listing_{idx}"))
@@ -41,43 +53,39 @@ def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
         
         is_front = st.session_state.card_states[l_id] == "front"
 
-        # Compute dynamic card color based on active must_haves selection
         address = str(row.get("address", "")).strip()
         call_res = row.get("call_result") or call_results_map.get(address) or {}
-        bg_color = scoring.evaluate_listing_color(call_res, active_must_haves)
+        raw_color_code = scoring.evaluate_listing_color(call_res, active_must_haves)
         
-        # Get status label text (MATCHED, NEGOTIABLE, REJECTED)
-        status_label = get_status_label(bg_color)
-
-        # Text contrast logic for dark red card (#9E3B3B)
-        is_dark_bg = bg_color == "#9E3B3B"
-        text_color = "#FFFFFF" if is_dark_bg else "#000000"
-        subtext_color = "rgba(255, 255, 255, 0.85)" if is_dark_bg else "#444444"
-        badge_bg = "rgba(255, 255, 255, 0.25)" if is_dark_bg else "rgba(0, 0, 0, 0.1)"
+        bg_color, text_color, subtext_color, badge_bg = get_status_palette(raw_color_code)
+        status_label = get_status_label(raw_color_code)
+        card_rotation = rotations[idx % len(rotations)]
 
         with grid_cols[col_idx]:
             card_key = f"property_card_{idx}"
             
-            # Dynamically style each native Streamlit container by key
             st.markdown(f"""
                 <style>
                 div[class*="st-key-{card_key}"] {{
                     background-color: {bg_color} !important;
-                    border-radius: 20px !important;
-                    border: 1px solid rgba(0,0,0,0.08) !important;
-                    padding: 20px 20px 20px 20px !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
+                    border-radius: 22px 18px 24px 20px !important;
+                    border: 2px solid #3A3226 !important;
+                    padding: 24px !important;
+                    box-shadow: 3px 5px 0px #3A3226 !important;
+                    transform: rotate({card_rotation}deg);
+                    transition: transform 0.2s ease;
+                }}
+                div[class*="st-key-{card_key}"]:hover {{
+                    transform: rotate(0deg) translateY(-2px);
                 }}
                 div[class*="st-key-{card_key}"] div.stButton > button {{
-                    background-color: rgba(255, 255, 255, 0.6) !important;
-                    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-                    color: #1E1E1E !important;
-                    border-radius: 12px !important;
-                    font-weight: 600 !important;
+                    background-color: {badge_bg} !important;
+                    border: 1.5px solid #3A3226 !important;
+                    color: {text_color} !important;
+                    border-radius: 14px !important;
+                    font-weight: 700 !important;
                     margin-top: 14px !important;
-                }}
-                div[class*="st-key-{card_key}"] div.stButton > button:hover {{
-                    background-color: rgba(255, 255, 255, 0.85) !important;
+                    box-shadow: 2px 2px 0px #3A3226 !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
@@ -85,27 +93,28 @@ def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
             with st.container(key=card_key):
                 if is_front:
                     st.markdown(f"""
-                        <div style="color: {text_color}; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+                        <div style="color: {text_color}; text-align: center; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
                             <div style="
                                 font-size: 11px; 
                                 font-weight: 800; 
-                                letter-spacing: 1px; 
-                                padding: 3px 10px; 
-                                border-radius: 20px; 
+                                letter-spacing: 1.5px; 
+                                padding: 4px 14px; 
+                                border-radius: 16px; 
                                 background-color: {badge_bg}; 
+                                border: 1px solid #3A3226;
                                 color: {text_color};
-                                margin-bottom: 6px;
+                                margin-bottom: 8px;
                             ">
                                 {status_label}
                             </div>
                             <div>
-                                <div style="font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.2;">
+                                <div style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; line-height: 1.2;">
                                     {row.get('address', 'Apartment Name')}
                                 </div>
-                                <div style="font-size: 15px; margin-bottom: 2px; font-weight: 500;">
+                                <div style="font-size: 15px; margin-bottom: 2px; font-weight: 600;">
                                     {row.get('broker_name', 'Broker Name')}
                                 </div>
-                                <div style="font-size: 14px; color: {subtext_color}; font-family: monospace;">
+                                <div style="font-size: 13px; color: {subtext_color}; font-family: monospace;">
                                     {row.get('broker_contact', 'Broker Contact')}
                                 </div>
                             </div>
@@ -116,32 +125,33 @@ def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
                         st.rerun()
                 else:
                     st.markdown(f"""
-                        <div style="color: {text_color}; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="color: {text_color}; min-height: 160px; display: flex; flex-direction: column; justify-content: space-between;">
                             <div style="text-align: center; margin-bottom: 6px;">
                                 <span style="
                                     font-size: 11px; 
                                     font-weight: 800; 
-                                    letter-spacing: 1px; 
-                                    padding: 3px 10px; 
-                                    border-radius: 20px; 
+                                    letter-spacing: 1.5px; 
+                                    padding: 4px 14px; 
+                                    border-radius: 16px; 
                                     background-color: {badge_bg}; 
+                                    border: 1px solid #3A3226;
                                     color: {text_color};
                                 ">
                                     {status_label}
                                 </span>
                             </div>
-                            <div>
+                            <div style="font-size: 13px;">
                                 <div style="margin-bottom: 6px;">
                                     <div style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Has</div>
-                                    <div style="font-size: 13px; color: {subtext_color};">{', '.join(call_res.get('confirmed_amenities', [])) or row.get('renter_preferences', 'N/A')}</div>
+                                    <div style="color: {subtext_color}; font-weight: 500;">{', '.join(call_res.get('confirmed_amenities', [])) or row.get('renter_preferences', 'N/A')}</div>
                                 </div>
                                 <div style="margin-bottom: 6px;">
                                     <div style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Negotiable</div>
-                                    <div style="font-size: 13px; color: {subtext_color};">{', '.join(call_res.get('negotiable_amenities', [])) or row.get('broker_asks', 'N/A')}</div>
+                                    <div style="color: {subtext_color}; font-weight: 500;">{', '.join(call_res.get('negotiable_amenities', [])) or row.get('broker_asks', 'N/A')}</div>
                                 </div>
                                 <div>
                                     <div style="font-size: 11px; font-weight: 700; text-transform: uppercase;">Non Negotiable</div>
-                                    <div style="font-size: 13px; color: {subtext_color};">{', '.join(call_res.get('rejected_amenities', [])) or row.get('non_negotiables', 'N/A')}</div>
+                                    <div style="color: {subtext_color}; font-weight: 500;">{', '.join(call_res.get('rejected_amenities', [])) or row.get('non_negotiables', 'N/A')}</div>
                                 </div>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ import sqlite3
 import pandas as pd
 import streamlit as st
 
-DB_PATH = Path(__file__).parent.parent.parent / "listings.db"
+DB_PATH = Path(__file__).parents[2] / "listings.db"
 PREF_OPTIONS = ["No Preference", "Must have", "Good to have", "Absolutely should not have"]
 
 @st.cache_data(ttl=5)

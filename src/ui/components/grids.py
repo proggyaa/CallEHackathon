@@ -1,9 +1,11 @@
 # app/components/grids.py
 import json
-import os
+from pathlib import Path
 import pandas as pd
 import streamlit as st
-from app.core import scoring
+from src.domain import scoring
+
+PROJECT_ROOT = Path(__file__).parents[3]
 
 def get_status_palette(color_code: str) -> tuple[str, str, str, str]:
     """Returns (bg_color, text_color, subtext_color, badge_bg) mapped to earthy paper palette."""
@@ -29,9 +31,10 @@ def render_property_grid(df: pd.DataFrame, must_haves: list | None = None):
     active_must_haves: list = must_haves if must_haves is not None else []
     
     call_results_map = {}
-    if os.path.exists("batch_results.json"):
+    results_file = PROJECT_ROOT / "data" / "raw" / "batch_results.json"
+    if results_file.exists():
         try:
-            with open("batch_results.json", "r") as f:
+            with open(results_file, "r") as f:
                 data = json.load(f)
                 if isinstance(data, list):
                     call_results_map = {item.get("address", "").strip(): item.get("result", {}) for item in data}

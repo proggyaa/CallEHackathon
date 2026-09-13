@@ -3,7 +3,7 @@
 from pathlib import Path
 import sqlite3
 
-DB_PATH = Path(__file__).parent.parent / "listings.db"
+DB_PATH = Path(__file__).parents[2] / "listings.db"
 
 
 def init_db():

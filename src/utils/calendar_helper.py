@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -6,8 +7,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
-CREDENTIALS_FILE = "credentials.json"
-TOKEN_FILE = "token.json"
+PROJECT_ROOT = Path(__file__).parents[2]
+CREDENTIALS_FILE = str(PROJECT_ROOT / "credentials.json")
+TOKEN_FILE = str(PROJECT_ROOT / "token.json")
 
 
 def get_calendar_service():

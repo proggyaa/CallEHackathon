@@ -6,12 +6,13 @@ from pathlib import Path
 from calle import CalleClient
 from dotenv import load_dotenv
 
-sys.path.append(str(Path(__file__).parent.parent))
-from database.db_manager import save_call_result
-from schemas.prescreen_schema import PRESCREEN_RESULT_SCHEMA
-from utils.calendar_helper import create_tour_event, get_available_slots
-from utils.mock_loader import load_mock_call_response
-from utils.prompt_loader import build_prescreen_prompt
+PROJECT_ROOT = Path(__file__).parents[2]
+sys.path.append(str(PROJECT_ROOT))
+from src.database.db_manager import save_call_result
+from src.config.schemas.prescreen_schema import PRESCREEN_RESULT_SCHEMA
+from src.utils.calendar_helper import create_tour_event, get_available_slots
+from src.utils.mock_loader import load_mock_call_response
+from src.utils.prompt_loader import build_prescreen_prompt
 
 load_dotenv()
 
@@ -19,7 +20,7 @@ MOCK_CALL = False
 
 def load_renter_prefs() -> dict:
     """Loads saved preferences from the frontend Streamlit dashboard."""
-    prefs_path = Path(__file__).parent.parent / "config" / "renter_prefs.json"
+    prefs_path = PROJECT_ROOT / "data" / "user" / "renter_prefs.json"
     if prefs_path.exists():
         with open(prefs_path, "r") as f:
             return json.load(f)
@@ -71,7 +72,7 @@ def prescreen_landlord(
     
     if MOCK_CALL:
         print(
-            "\n--- [MOCK MODE ENABLED] Loading mock response from tests/mock_response.json ---"
+            "\n--- [MOCK MODE ENABLED] Loading mock response from tests/fixtures/mock_response.json ---"
         )
         call = load_mock_call_response()
         if call.get("structured_result"):
@@ -104,8 +105,8 @@ def prescreen_landlord(
 if __name__ == "__main__":
     # Sample call to run the prescreen_landlord function directly for testing
     prescreen_landlord(
-        phone="+14155552671",
-        address="124 Baker St, Apt 4B",
+        phone="+15550001004",
+        address="101 Example Street, Apt 4B",
         max_budget="$2,400",
         max_deposit="$2,400",
     )

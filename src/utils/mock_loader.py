@@ -7,7 +7,7 @@ from pathlib import Path
 def load_mock_call_response() -> dict:
     """Loads mock JSON call response from tests directory."""
     mock_file = (
-        Path(__file__).parent.parent / "tests" / "mock_response.json"
+        Path(__file__).parents[2] / "tests" / "fixtures" / "mock_response.json"
     )
     if not mock_file.exists():
         raise FileNotFoundError(f"Mock data file not found at: {mock_file}")

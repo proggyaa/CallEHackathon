@@ -15,4 +15,4 @@
 To run a single pre-screening task:
 
 ```bash
-python scripts/prescreen_runner.py --phone "+14155552671" --address "124 Baker St, Apt 4B"
+python -m src.domain.agent_runner

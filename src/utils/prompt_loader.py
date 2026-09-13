@@ -1,7 +1,7 @@
 from pathlib import Path
 
 PROMPT_TEMPLATE_PATH = (
-    Path(__file__).parent.parent / "prompts" / "prescreen_task_en.txt"
+    Path(__file__).parents[1] / "config" / "prompts" / "prescreen_task_en.txt"
 )
 
 

@@ -1,12 +1,14 @@
-# app/gemini_dashboard.py
+# app/dashboard.py
 import sys
 from pathlib import Path
 import streamlit as st
 
-sys.path.append(str(Path(__file__).parent.parent))
+PROJECT_ROOT = Path(__file__).parents[2]
+sys.path.append(str(PROJECT_ROOT))
 
-from app.core import data_handler, runner
-from app.components import styling, states, filters, grids
+from src.database import data_handler
+from src.ui import runner
+from src.ui.components import styling, states, filters, grids
 
 def main():
     st.set_page_config(layout="wide", page_title="Nemo The Finder")
@@ -23,7 +25,7 @@ def main():
 
         if save_clicked:
             filters.save_prefs(must_haves, negotiables)
-            st.toast("Preferences saved to config/renter_prefs.json")
+            st.toast("Preferences saved to data/user/renter_prefs.json")
 
         if initiate_clicked:
             filters.save_prefs(must_haves, negotiables)

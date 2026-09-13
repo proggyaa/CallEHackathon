@@ -1,18 +1,19 @@
 # app/components/filters.py
 import json
-import os
+from pathlib import Path
 import streamlit as st
 
-PREFS_FILE = "config/renter_prefs.json"
+PROJECT_ROOT = Path(__file__).parents[3]
+PREFS_FILE = PROJECT_ROOT / "data" / "user" / "renter_prefs.json"
 
 def load_prefs() -> dict:
-    if os.path.exists(PREFS_FILE):
+    if PREFS_FILE.exists():
         with open(PREFS_FILE, "r") as f:
             return json.load(f)
     return {"must_haves": [], "negotiables": []}
 
 def save_prefs(must_haves: list, negotiables: list) -> None:
-    os.makedirs(os.path.dirname(PREFS_FILE), exist_ok=True)
+    PREFS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(PREFS_FILE, "w") as f:
         json.dump({"must_haves": must_haves, "negotiables": negotiables}, f)
 
@@ -36,7 +37,7 @@ def render_header_banner():
     with st.container(key="top_banner_container"):
         col_l, col_img, col_r = st.columns([1.5, 3, 1.5])
         with col_img:
-            st.image("assets/header_logo.png", use_container_width=True)
+            st.image(str(PROJECT_ROOT / "src" / "ui" / "assets" / "header_logo.png"), use_container_width=True)
 
 def render_renter_choice_input() -> tuple[list, list, bool, bool]:
     st.markdown("""

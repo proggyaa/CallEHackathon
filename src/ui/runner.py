@@ -3,12 +3,12 @@ import sys
 import subprocess
 from pathlib import Path
 
-# Resolve project root (two levels up from app/core/runner.py)
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Resolve project root from src/ui/runner.py.
+PROJECT_ROOT = Path(__file__).parents[2]
 
-def trigger_batch_prescreen_stream(input_csv: str = "listings.csv", output_json: str = "batch_results.json"):
+def trigger_batch_prescreen_stream(input_csv: str = "data/raw/listings.csv", output_json: str = "data/raw/batch_results.json"):
     """Spawns batch prescreen and yields stdout line by line for real-time UI streaming."""
-    script_path = PROJECT_ROOT / "scripts" / "batch_prescreen.py"
+    script_path = PROJECT_ROOT / "src" / "domain" / "batch_prescreen.py"
     
     cmd = [
         sys.executable,

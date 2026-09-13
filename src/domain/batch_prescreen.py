@@ -2,7 +2,13 @@ import argparse
 import csv
 import json
 import os
-from prescreen_runner import prescreen_landlord
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).parents[2]
+sys.path.append(str(PROJECT_ROOT))
+
+from src.domain.agent_runner import prescreen_landlord
 
 def process_record(row: dict, slots: list[str] | None, index: int) -> dict | None:
     """Processes a single CSV row entry."""
@@ -41,7 +47,7 @@ def run_batch(csv_file: str, output_file: str, slots: list[str] | None = None) -
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Batch flat pre-screening runner.")
     parser.add_argument("--input", required=True, help="Path to input CSV file")
-    parser.add_argument("--output", default="batch_results.json", help="Path to output JSON file")
+    parser.add_argument("--output", default="data/raw/batch_results.json", help="Path to output JSON file")
     parser.add_argument("--slots", nargs="*", default=None, help="Optional custom time slots")
     args = parser.parse_args()
 
